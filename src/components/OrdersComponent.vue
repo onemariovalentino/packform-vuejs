@@ -102,6 +102,13 @@ export default defineComponent({
                 response.value = resp.data
             })
         },
+        getTotalPages(){
+            return Math.ceil(response.value.data.total_data/body.value.per_page)
+        },
+        setCurrentPageTitle(){
+            const currentPages = this.$refs.current_page_title as HTMLLIElement
+            currentPages.innerText = body.value.page.toString()
+        },
         sortByDate(direction: string){
             body.value.sort_direction = direction
             this.getOrders(body.value)
@@ -125,16 +132,38 @@ export default defineComponent({
         },
         chooseSelected(){
             body.value.per_page = this.selectedOptions
+            body.value.page = 1
             this.getOrders(body.value)
-            this.total_pages = Math.ceil(response.value.data.total_data/body.value.per_page)
-            this.prevCursorClassName = this.total_pages == 1 || this.body.page == 1 ? 'cursor-not-allowed':''
-            this.nextCursorClassName = this.body.page == this.total_pages ? 'cursor-not-allowed':''
+            
+            this.total_pages = this.getTotalPages()
+            this.prevCursorClassName = this.total_pages == 1 || body.value.page == 1 ? 'cursor-not-allowed':''
+            this.nextCursorClassName = body.value.page == this.total_pages ? 'cursor-not-allowed':''
+            this.setCurrentPageTitle()
+            
         },
         showPrev(){
-
+            this.total_pages = this.getTotalPages()
+            if (body.value.page <= this.total_pages && body.value.page > 1) {
+                body.value.page -= 1
+                this.nextCursorClassName = ''
+                if (body.value.page == 1){
+                    this.prevCursorClassName = 'cursor-not-allowed'
+                }
+                this.setCurrentPageTitle()
+                this.getOrders(body.value)
+            }
         },
         showNext(){
-
+            this.total_pages = this.getTotalPages()
+            if (body.value.page < this.total_pages) {
+                body.value.page += 1
+                this.prevCursorClassName = ''
+                if (body.value.page == this.total_pages){
+                    this.nextCursorClassName = 'cursor-not-allowed'
+                }
+                this.setCurrentPageTitle()
+                this.getOrders(body.value)
+            }
         }
     }
 });
@@ -224,7 +253,7 @@ export default defineComponent({
                     <nav aria-label="Table pagination">
                         <ul class="flex items-center -space-x-px text-sm">
                             <li>
-                                <a href="#" @click="showPrev" :class="prevCursorClassName" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                <a @click="showPrev" :class="prevCursorClassName" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                     <span class="sr-only">Previous</span>
                                     <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
@@ -235,7 +264,7 @@ export default defineComponent({
                                 <a href="#" ref="current_page_title" class="cursor-not-allowed flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
                             </li>
                             <li>
-                                <a href="#" @click="showNext" :class="nextCursorClassName" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                <a @click="showNext" :class="nextCursorClassName" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                     <span class="sr-only">Next</span>
                                     <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
