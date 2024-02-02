@@ -39,7 +39,7 @@ yarn install
 npm run dev
 ```
 
-### Make sure your backend url
+### Make sure your backend url, and make sure you already run cli apps in backend
 
 ```text
 http://127.0.0.1:8080/
