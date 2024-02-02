@@ -48,5 +48,5 @@ http://127.0.0.1:8080/
 ### Open browser 
 
 ```text
-run http://localost:{{port}}/orders
+run http://localhost:{{port}}/orders
 ```
