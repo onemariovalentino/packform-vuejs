@@ -64,7 +64,7 @@ export default defineComponent({
         const data_per_pages = [5,10,25,50,100]
         const startDateInputType = ref('text')
         const endDateInputType = ref('text')
-        const go = 1
+        const go_page = 1
         
         
         async function getOrders(body: SearchOrderRequest){
@@ -86,7 +86,7 @@ export default defineComponent({
             response,
             startDateInputType,
             endDateInputType,
-            go,
+            go_page,
             data_per_pages,
             selectedOptions,
             total_pages,
@@ -164,6 +164,17 @@ export default defineComponent({
                 this.setCurrentPageTitle()
                 this.getOrders(body.value)
             }
+        },
+        goPages(){
+            this.total_pages = this.getTotalPages()
+            if (this.go_page > this.total_pages){
+                this.go_page = this.total_pages
+            }else{
+                body.value.page = Number(this.go_page)
+                this.setCurrentPageTitle()
+                console.log(body.value)
+                this.getOrders(body.value)
+            }
         }
     }
 });
@@ -205,7 +216,7 @@ export default defineComponent({
                 <div class="flex px-3 flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                     <div class="w-full md:w-1/2">
                         <span class="h-10 items-center font-normal text-gray-500 dark:text-gray-400">
-                            Total amount: {{ response?.data.total_amount }}
+                            Total amount: ${{ response?.data.total_amount.toFixed(2) }}
                         </span>
                     </div>
                 </div>
@@ -230,8 +241,9 @@ export default defineComponent({
                                 <td class="px-4 py-3">{{ order.company_name }}</td>
                                 <td class="px-4 py-3">{{ order.customer_name }}</td>
                                 <td class="px-4 py-3">{{ order.order_date }}</td>
-                                <td class="px-4 py-3">{{ order.delivered_amount.toFixed(2) }}</td>
-                                <td class="px-4 py-3">{{ order.total_amount.toFixed(2) }}</td>
+                                <td class="px-4 py-3" v-if="order.delivered_amount>0">$ {{ order.delivered_amount.toFixed(2) }}</td>
+                                <td class="px-4 py-3" v-else> - </td>
+                                <td class="px-4 py-3">$ {{ order.total_amount.toFixed(2) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -276,7 +288,7 @@ export default defineComponent({
 
                     <span>&nbsp;</span>
                     <span class="text-sm items-center font-normal text-gray-500 dark:text-gray-400">
-                        Go <input class="form-input rounded-full text-sm font-normal" type="text" inputmode="numeric" pattern="\d*" v-model.lazy="go" name="go" size="2"/>
+                        Go <input @blur="goPages" class="form-input rounded-full text-sm font-normal" type="text" inputmode="numeric" pattern="\d*" v-model.lazy="go_page" name="go_page" size="2"/>
                     </span>
                 </div>
             </div>
