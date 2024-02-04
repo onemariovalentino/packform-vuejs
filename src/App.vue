@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import OrdersComponent from './components/OrdersComponent.vue';
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <OrdersComponent/>
+  <header>
+    <div class="wrapper">
+      <nav>
+        <RouterLink to="/">Home</RouterLink>
+        &nbsp;
+        <RouterLink to="/orders">Orders</RouterLink>
+      </nav>
+    </div>
+  </header>
+  <RouterView />
 </template>
 
 <style scoped>

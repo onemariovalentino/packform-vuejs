@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <main>
-  
-  </main>
+  <div>
+    Welcome to Packform. Please click Orders link to visit your orders.
+  </div>
 </template>
