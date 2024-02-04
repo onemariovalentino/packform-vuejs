@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUpdated, reactive, ref, shallowRef, watch } from 'vue';
 import axios from 'axios'
+import { isThisTypeNode } from 'typescript';
 
 interface SearchOrderRequest {
     search:string,
@@ -62,10 +63,9 @@ export default defineComponent({
     setup(){
         const selectedOptions = 5
         const data_per_pages = [5,10,25,50,100]
-        const startDateInputType = ref('text')
-        const endDateInputType = ref('text')
         const go_page = 1
-        
+        const stdate = shallowRef("text")
+        const etdate = shallowRef("text")
         
         async function getOrders(body: SearchOrderRequest){
             const url = "http://127.0.0.1:8080/orders"
@@ -84,14 +84,14 @@ export default defineComponent({
         return {
             body,
             response,
-            startDateInputType,
-            endDateInputType,
             go_page,
             data_per_pages,
             selectedOptions,
             total_pages,
             prevCursorClassName,
-            nextCursorClassName
+            nextCursorClassName,
+            stdate,
+            etdate
         };
     },
     methods:{
@@ -113,17 +113,23 @@ export default defineComponent({
             body.value.sort_direction = direction
             this.getOrders(body.value)
         },
-        setStartDateInputType(type:string){
-            this.startDateInputType = type
-            let start_date = this.$refs.start_date as HTMLInputElement
-            body.value.start_date = start_date.value
-            this.getOrders(body.value)
+        setStToDateInput(type:string){
+            this.stdate = type
         },
-        setEndDateInputType(type:string){
-            this.endDateInputType = type
-            let end_date = this.$refs.end_date as HTMLInputElement
-            body.value.end_date = end_date.value
+        setEtToDateInput(type:string){
+            this.etdate = type
+        },
+        setStDateVal(e:Event){
+            const ev = e.target as HTMLInputElement
+            body.value.start_date = ev.value
             this.getOrders(body.value)
+            this.stdate = "text"
+        },
+        setEtDateVal(e:Event){
+            const ev = e.target as HTMLInputElement
+            body.value.end_date = ev.value
+            this.getOrders(body.value)
+            this.etdate = "text"
         },
         updateSearch(){
             let search = this.$refs.search_order as HTMLInputElement
@@ -172,7 +178,6 @@ export default defineComponent({
             }else{
                 body.value.page = Number(this.go_page)
                 this.setCurrentPageTitle()
-                console.log(body.value)
                 this.getOrders(body.value)
             }
         }
@@ -201,12 +206,12 @@ export default defineComponent({
                     <div class="w-full md:w-1/2">
                         <label for="start-date-order" class="sr-only">Order Date</label>
                         <span class="h-10 items-center font-normal text-gray-500 dark:text-gray-400">
-                            <input id="start-date-order" :type="startDateInputType" ref="start_date" name="start_date" placeholder="start date" size="10" @focus="setStartDateInputType('date')" @blur="setStartDateInputType('text')" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"/>
+                            <input id="start-date-order" @focus="setStToDateInput('date')" @blur="setStDateVal" :type="stdate" name="start_date" placeholder="start date" size="10" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"/>
                             <span>&nbsp;</span>
                         </span>
                         <label for="end-date-order" class="sr-only">Order Date</label>
                         <span class="h-10 items-center font-normal text-gray-500 dark:text-gray-400">
-                            <input id="end-date-order" :type="endDateInputType" ref="end_date" name="end_date" placeholder="end date" size="10" @focus="setEndDateInputType('date')" @blur="setEndDateInputType('text')" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"/>
+                            <input id="end-date-order" @focus="setEtToDateInput('date')" @blur="setEtDateVal" :type="etdate" name="end_date" placeholder="end date" size="10" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"/>
                             <span>&nbsp;</span>
                         </span>
                         
